@@ -14,8 +14,6 @@ BRAILLE_DOTS_WIDTH = 2
 BRAILLE_UNICODE_START = 0x2800
 FULL_BRAILLE_SYMBOL = '\u28ff'
 
-DISCORD_PREFIX = "```ansi\n"
-DISCORD_POSTFIX = "```"
 
 def _get_nearest_color(red: float, green: float, blue: float, pallete: dict) -> str:
     return pallete[min(pallete.keys(), key=lambda color: sum((abs(
@@ -113,6 +111,4 @@ def generate_art(
             count += 1
         art_string += "\n"
 
-    if pallete_type == ColorTypes.DISCORD:
-        art_string = f"{DISCORD_PREFIX}{art_string}{DISCORD_POSTFIX}"
     return art_string

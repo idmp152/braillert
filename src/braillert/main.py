@@ -2,7 +2,6 @@ import sys
 import argparse
 from typing import Callable
 
-import pyperclip
 from rich.console import Console
 
 from braillert.generator import generate_art
@@ -32,11 +31,15 @@ WIDTH_ARG_HELP_STRING: str = (
     """
 )
 
+def _write_to_file(string: str) -> None:
+    with open("./art.ansi", "w", encoding="utf-8") as file:
+        file.write(string)
+
 def _get_printer_by_color_type(color_type: ColorTypes) -> Callable:
     if color_type == ColorTypes.RICH:
         return Console().print
     if color_type == ColorTypes.DISCORD:
-        return pyperclip.copy
+        return _write_to_file
     if color_type in (ColorTypes.COLORAMA, ColorTypes.GRAYSCALE):
         return print
     raise Exception()
@@ -58,6 +61,7 @@ def main() -> None:
     arguments = argument_parser.parse_args()
     mode = ColorTypes(arguments.mode)
 
-    _get_printer_by_color_type(mode)(generate_art(arguments.file_path, mode, art_width=arguments.width))
+    _get_printer_by_color_type(mode)(generate_art(arguments.file_path, mode,
+                                                    art_width=arguments.width))
     if mode == ColorTypes.DISCORD:
-        print("The result has been copied to your clipboard.")
+        print("The result has been saved to a file.")
