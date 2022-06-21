@@ -31,16 +31,10 @@ WIDTH_ARG_HELP_STRING: str = (
     """
 )
 
-def _write_to_file(string: str) -> None:
-    with open("./art.ansi", "w", encoding="utf-8") as file:
-        file.write(string)
-
 def _get_printer_by_color_type(color_type: ColorTypes) -> Callable:
     if color_type == ColorTypes.RICH:
         return Console().print
-    if color_type == ColorTypes.DISCORD:
-        return _write_to_file
-    if color_type in (ColorTypes.COLORAMA, ColorTypes.GRAYSCALE):
+    if color_type in (ColorTypes.COLORAMA, ColorTypes.GRAYSCALE, ColorTypes.DISCORD):
         return print
     raise Exception()
 
@@ -63,5 +57,3 @@ def main() -> None:
 
     _get_printer_by_color_type(mode)(generate_art(arguments.file_path, mode,
                                                     art_width=arguments.width))
-    if mode == ColorTypes.DISCORD:
-        print("The result has been saved to a file.")
