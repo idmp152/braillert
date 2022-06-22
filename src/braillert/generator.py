@@ -10,6 +10,7 @@ PIXEL_MAP = ((0x01, 0x08), (0x02, 0x10), (0x04, 0x20), (0x40, 0x80))
 
 BRAILLE_DOTS_HEIGHT = 4
 BRAILLE_DOTS_WIDTH = 2
+RGB_LEN = 3
 
 BRAILLE_UNICODE_START = 0x2800
 FULL_BRAILLE_SYMBOL = '\u28ff'
@@ -64,7 +65,7 @@ def generate_art(
     pallete = _get_pallete_dict_by_type(pallete_type)
     resetter = _get_resetter_by_pallete_type(pallete_type) or ''
     symbols = []
-    image = Image.open(source_path).convert("RGB")
+    image = Image.open(source_path).convert("RGBA")
     image = _resize_portrait(image, art_width)
 
     image_grayscale = image.convert("L")
@@ -96,10 +97,12 @@ def generate_art(
                         symbol_relative_pos += PIXEL_MAP[part_height][part_width]
 
             segment = chr(BRAILLE_UNICODE_START + symbol_relative_pos)
+            segment_opaque = not any(pixel[RGB_LEN] != 0 for pixel in segment_pixels)
             if not grayscale:
-                segment = FULL_BRAILLE_SYMBOL if symbol_relative_pos == 0 else segment
+                segment = FULL_BRAILLE_SYMBOL if (symbol_relative_pos == 0
+                                        and not segment_opaque) else segment
 
-            color = _get_nearest_color(*[sum(x)/len(x) for x in zip(*segment_pixels)],
+            color = _get_nearest_color(*[sum(x)/len(x) for x in zip(*segment_pixels)][0:RGB_LEN],
                                                             pallete) if not grayscale else ''
             symbols.append(color + segment + resetter)
 
