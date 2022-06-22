@@ -9,7 +9,7 @@ requirements = [
 
 setup(
     name="braillert",
-    version="0.1.2",
+    version="0.1.3",
     packages=find_packages("src"),
     package_dir={'': "src"},
     author="ov3rwrite",
