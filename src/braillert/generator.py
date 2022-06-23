@@ -27,6 +27,7 @@ def _resize_portrait(image: Image, width: int):
     image = image.resize((width, hsize), Image.Resampling.LANCZOS)
     return image
 
+#TODO: Too complex method, needs refactoring
 def generate_art(
     source_path: str | os.PathLike,
     pallete: dict = None,
