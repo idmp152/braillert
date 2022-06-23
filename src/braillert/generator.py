@@ -1,10 +1,6 @@
 import os
 
 from PIL import Image, ImageEnhance, ImageStat
-from colorama import Style
-
-from braillert.colors import ColorTypes, RICH_COLORS, COLORAMA_COLORS, DISCORD_COLORS
-
 
 PIXEL_MAP = ((0x01, 0x08), (0x02, 0x10), (0x04, 0x20), (0x40, 0x80))
 
@@ -31,39 +27,16 @@ def _resize_portrait(image: Image, width: int):
     image = image.resize((width, hsize), Image.Resampling.LANCZOS)
     return image
 
-def _get_pallete_dict_by_type(pallete_type: ColorTypes) -> dict | None:
-    if pallete_type == ColorTypes.RICH:
-        return RICH_COLORS
-    if pallete_type == ColorTypes.COLORAMA:
-        return COLORAMA_COLORS
-    if pallete_type == ColorTypes.DISCORD:
-        return DISCORD_COLORS
-    if pallete_type == ColorTypes.GRAYSCALE:
-        return
-    raise Exception()
-
-def _get_resetter_by_pallete_type(pallete_type: ColorTypes) -> str | None:
-    if pallete_type == ColorTypes.RICH:
-        return "[/]"
-    if pallete_type == ColorTypes.COLORAMA:
-        return Style.RESET_ALL
-    if pallete_type == ColorTypes.DISCORD:
-        return
-    if pallete_type == ColorTypes.GRAYSCALE:
-        return
-    raise Exception()
-
 def generate_art(
     source_path: str | os.PathLike,
-    pallete_type: ColorTypes,
+    pallete: dict = None,
+    resetter: str = '',
     threshold: int = None,
     art_width: int = 100,
     contrast: float = None
 ) -> str:
     """Generates braille art from a picture."""
-    grayscale = pallete_type == ColorTypes.GRAYSCALE
-    pallete = _get_pallete_dict_by_type(pallete_type)
-    resetter = _get_resetter_by_pallete_type(pallete_type) or ''
+    grayscale = pallete is None
     symbols = []
     image = Image.open(source_path).convert("RGBA")
     image = _resize_portrait(image, art_width)

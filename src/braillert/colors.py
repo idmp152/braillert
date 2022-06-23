@@ -1,14 +1,6 @@
-from enum import Enum
+from colorama import Fore, Style
 
-from colorama import Fore
-
-class ColorTypes(str, Enum):
-    """Color types enum."""
-    RICH = "rich"
-    COLORAMA = "colorama"
-    DISCORD = "discord"
-    GRAYSCALE = "gs"
-
+RICH_RESETTER = "[/]"
 RICH_COLORS = {
     (255, 0, 0): "[bright_red]",
     (0, 0, 0): "[black]",
@@ -215,7 +207,7 @@ RICH_COLORS = {
     (238, 238, 238): "[grey93]",
 }
 
-
+COLORAMA_RESETTER = Style.RESET_ALL
 COLORAMA_COLORS = {
     (255, 0, 0): Fore.LIGHTRED_EX,
     (26, 17, 16): Fore.LIGHTBLACK_EX,
