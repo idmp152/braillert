@@ -1,3 +1,4 @@
+import logging
 import sys
 import argparse
 from typing import Callable, NamedTuple
@@ -14,6 +15,7 @@ from braillert.colors import (
     RICH_RESETTER
 )
 from braillert.logger import logger
+from braillert.__init__ import __version__, __author__, __author_email__
 
 class Palette(NamedTuple):
     """Palette type object"""
@@ -53,14 +55,6 @@ OUT_ARG_HELP_STRING: str = (
     """
 )
 
-CONTRAST_ARG_HELP_STRING: str = (
-    """
-    An optional argument that represents the contrast value in which the art should be modified
-    e.g.
-    -c=1.5 or --contrast=1.3
-    """
-)
-
 THRESHOLD_ARG_HELP_STRING: str = (
     """
     An optional argument that represents the threshold value that will be used
@@ -69,6 +63,23 @@ THRESHOLD_ARG_HELP_STRING: str = (
     -t=150 or --threshold=100
     """
 )
+
+DISABLE_LOGGING_ARG_HELP_STRING: str = (
+    """
+    An optional argument that disables all text output in terminal, including logo,
+    author and version
+    e.g.
+    -dl or --disable-logging
+    """
+)
+
+LOGO_PATH = "./logo.ansi"
+TEXT_LOGO: str
+with open(LOGO_PATH, "r", encoding="utf-8") as logo_file:
+    TEXT_LOGO = logo_file.read()
+
+LOGO_DELIMITER_LENGTH = TEXT_LOGO.partition('\n')[0].count('⣿') # Not universal, must be replaced
+LOGO_DELIMITER = '-' * LOGO_DELIMITER_LENGTH
 
 palettes: dict = {
     "rich": Palette(printer=Console().print, palette=RICH_COLORS, resetter=RICH_RESETTER),
@@ -85,7 +96,8 @@ def _exception_handler(func: Callable):
         try:
             func(*args, **kwargs)
         except Exception as error: #pylint: disable = broad-except
-            logger.error("Error! Unexpected exception caught: %s", *error.args)
+            logger.error("Error! Unexpected exception caught:")
+            logger.info(str(error))
 
     return wrapper
 
@@ -100,21 +112,28 @@ def main() -> None:
     argument_parser.add_argument("-w", "--width", dest="width", type=int,
                                         default=100, help=MODE_ARG_HELP_STRING)
     argument_parser.add_argument("-o", "--out", dest="out", default=None, help=OUT_ARG_HELP_STRING)
-    argument_parser.add_argument("-c", "--contrast", dest="contrast", default=None, type=float,
-                                                                    help=CONTRAST_ARG_HELP_STRING)
     argument_parser.add_argument("-t", "--threshold", dest="threshold", default=None, type=int,
                                                                     help=THRESHOLD_ARG_HELP_STRING)
+    argument_parser.add_argument("-dl", "--disable-logging", action="store_true",
+                                                            help=DISABLE_LOGGING_ARG_HELP_STRING)
 
     arguments = argument_parser.parse_args()
     mode = palettes.get(arguments.mode)
 
+    if arguments.disable_logging:
+        logger.setLevel(logging.ERROR)
+    else:
+        Console().print(TEXT_LOGO + "\n\n")
+        print(f"Author: {__author__} <{__author_email__}>  Version: {__version__}")
+        print(LOGO_DELIMITER)
+
     logger.info("Generating...")
     art = generate_art(arguments.file_path, mode.palette, mode.resetter,
-                            art_width=arguments.width, contrast=arguments.contrast, threshold=arguments.threshold)
+                            art_width=arguments.width, threshold=arguments.threshold)
     logger.success("Generated!")
     if arguments.out:
-        with open(arguments.out, "w", encoding="utf-8") as file:
-            file.write(art)
+        with open(arguments.out, "w", encoding="utf-8") as out_file:
+            out_file.write(art)
         logger.info("Saved to -> %s", arguments.out)
     else:
         mode.printer(art)
