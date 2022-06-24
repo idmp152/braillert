@@ -66,10 +66,6 @@ or
 ```
 --out=./art.ansi
 ```
-`--contrast` or `-c` - an optional argument that represents the contrast value in which the art should be modified e.g.
-```
---contrast=1.5
-```
 `--threshold` or `-t` - an optional argument that represents the threshold value that will be used
 during the art generation e.g.
 ```
