@@ -2,7 +2,7 @@ import logging
 
 from colorama import Style, Fore
 
-logging.SUCCESS = logging.INFO
+logging.SUCCESS = logging.INFO + 1
 
 class ColoredFormatter(logging.Formatter):
     """Colored logging formatter"""
