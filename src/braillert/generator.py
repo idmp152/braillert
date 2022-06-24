@@ -1,6 +1,6 @@
 import os
 
-from PIL import Image, ImageEnhance, ImageStat
+from PIL import Image, ImageStat
 
 PIXEL_MAP = ((0x01, 0x08), (0x02, 0x10), (0x04, 0x20), (0x40, 0x80))
 
@@ -27,63 +27,68 @@ def _resize_portrait(image: Image, width: int):
     image = image.resize((width, hsize), Image.Resampling.LANCZOS)
     return image
 
-#TODO: Too complex method, needs refactoring
+def _generate_segment(
+    image: Image,
+    current_width: int,
+    current_height: int,
+    threshold: int,
+    palette: bool,
+    resetter: str,
+) -> str:
+    grayscale = palette is None
+    symbol_relative_pos = 0
+    segment_pixels = []
+    image_grayscale = image.convert("L")
+    for part_height in range(BRAILLE_DOTS_HEIGHT):
+        for part_width in range(BRAILLE_DOTS_WIDTH):
+            pixel_grayscale = image_grayscale.getpixel((current_width + part_width,
+                                                            current_height + part_height))
+            pixel = image.getpixel((current_width + part_width, current_height + part_height))
+            segment_pixels.append(pixel)
+            if pixel_grayscale > threshold:
+                symbol_relative_pos += PIXEL_MAP[part_height][part_width]
+
+    segment = chr(BRAILLE_UNICODE_START + symbol_relative_pos)
+    segment_opaque = not any(pixel[RGB_LEN] != 0 for pixel in segment_pixels)
+    if not grayscale:
+        segment = FULL_BRAILLE_SYMBOL if (symbol_relative_pos == 0
+                                and not segment_opaque) else segment
+
+    color = _get_nearest_color(*[sum(x)/len(x) for x in zip(*segment_pixels)][0:RGB_LEN],
+                                                    palette) if not grayscale else ''
+    return color + segment + resetter
+
 def generate_art(
     source_path: str | os.PathLike,
-    pallete: dict = None,
+    palette: dict = None,
     resetter: str = '',
     threshold: int = None,
-    art_width: int = 100,
-    contrast: float = None
+    art_width: int = 100
 ) -> str:
     """Generates braille art from a picture."""
-    grayscale = pallete is None
     symbols = []
     image = Image.open(source_path).convert("RGBA")
     image = _resize_portrait(image, art_width)
 
-    image_grayscale = image.convert("L")
-    if contrast is not None:
-        image_grayscale = ImageEnhance.Contrast(image_grayscale).enhance(contrast)
-
     if threshold is None:
-        threshold = ImageStat.Stat(image_grayscale).mean[0]
+        threshold = ImageStat.Stat(image.convert("L")).mean[0]
 
     for height in range(
         0,
-        _floor_to_nearest_multiple(image_grayscale.height, BRAILLE_DOTS_HEIGHT),
+        _floor_to_nearest_multiple(image.height, BRAILLE_DOTS_HEIGHT),
         BRAILLE_DOTS_HEIGHT,
     ):
         for width in range(
             0,
-            _floor_to_nearest_multiple(image_grayscale.width, BRAILLE_DOTS_WIDTH),
+            _floor_to_nearest_multiple(image.width, BRAILLE_DOTS_WIDTH),
             BRAILLE_DOTS_WIDTH,
         ):
-            symbol_relative_pos = 0
-            segment_pixels = []
-            for part_height in range(BRAILLE_DOTS_HEIGHT):
-                for part_width in range(BRAILLE_DOTS_WIDTH):
-                    pixel_grayscale = image_grayscale.getpixel((width + part_width,
-                                                                    height + part_height))
-                    pixel = image.getpixel((width + part_width, height + part_height))
-                    segment_pixels.append(pixel)
-                    if pixel_grayscale > threshold:
-                        symbol_relative_pos += PIXEL_MAP[part_height][part_width]
-
-            segment = chr(BRAILLE_UNICODE_START + symbol_relative_pos)
-            segment_opaque = not any(pixel[RGB_LEN] != 0 for pixel in segment_pixels)
-            if not grayscale:
-                segment = FULL_BRAILLE_SYMBOL if (symbol_relative_pos == 0
-                                        and not segment_opaque) else segment
-
-            color = _get_nearest_color(*[sum(x)/len(x) for x in zip(*segment_pixels)][0:RGB_LEN],
-                                                            pallete) if not grayscale else ''
-            symbols.append(color + segment + resetter)
+            symbols.append(_generate_segment(image, width, height, threshold, palette, resetter))
 
     art_string = ""
     count = 0
-    for _ in range(image_grayscale.height // BRAILLE_DOTS_HEIGHT):
-        for _ in range(image_grayscale.width // BRAILLE_DOTS_WIDTH):
+    for _ in range(image.height // BRAILLE_DOTS_HEIGHT):
+        for _ in range(image.width // BRAILLE_DOTS_WIDTH):
             art_string += symbols[count]
             count += 1
         art_string += "\n"
