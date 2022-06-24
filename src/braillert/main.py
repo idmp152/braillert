@@ -1,5 +1,6 @@
 import logging
 import sys
+import os
 import argparse
 from typing import Callable, NamedTuple
 from functools import wraps
@@ -73,7 +74,7 @@ DISABLE_LOGGING_ARG_HELP_STRING: str = (
     """
 )
 
-LOGO_PATH = "./logo.ansi"
+LOGO_PATH = os.path.join(os.path.dirname(__file__), "./logo.ansi")
 TEXT_LOGO: str
 with open(LOGO_PATH, "r", encoding="utf-8") as logo_file:
     TEXT_LOGO = logo_file.read()
