@@ -61,7 +61,7 @@ CONTRAST_ARG_HELP_STRING: str = (
     """
 )
 
-CONTRAST_ARG_HELP_STRING: str = (
+THRESHOLD_ARG_HELP_STRING: str = (
     """
     An optional argument that represents the threshold value that will be used
     during the art generation
@@ -100,8 +100,10 @@ def main() -> None:
     argument_parser.add_argument("-w", "--width", dest="width", type=int,
                                         default=100, help=MODE_ARG_HELP_STRING)
     argument_parser.add_argument("-o", "--out", dest="out", default=None, help=OUT_ARG_HELP_STRING)
-    argument_parser.add_argument("-c", "--contrast", dest="contrast", default=None, type=float)
-    argument_parser.add_argument("-t", "--threshold", dest="threshold", default=None, type=int)
+    argument_parser.add_argument("-c", "--contrast", dest="contrast", default=None, type=float,
+                                                                    help=CONTRAST_ARG_HELP_STRING)
+    argument_parser.add_argument("-t", "--threshold", dest="threshold", default=None, type=int,
+                                                                    help=THRESHOLD_ARG_HELP_STRING)
 
     arguments = argument_parser.parse_args()
     mode = palettes.get(arguments.mode)
