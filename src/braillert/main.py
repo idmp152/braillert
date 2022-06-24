@@ -124,7 +124,7 @@ def main() -> None:
     if arguments.disable_logging:
         logger.setLevel(logging.ERROR)
     else:
-        Console().print(TEXT_LOGO + "\n\n")
+        Console().print(TEXT_LOGO)
         print(f"Author: {__author__} <{__author_email__}>  Version: {__version__}")
         print(LOGO_DELIMITER)
 
