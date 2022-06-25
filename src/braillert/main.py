@@ -2,12 +2,14 @@ import logging
 import sys
 import os
 import argparse
+from time import sleep
 from typing import Callable, NamedTuple
 from functools import wraps
 
 from rich.console import Console
+from PIL import Image
 
-from braillert.generator import generate_art
+from braillert.generator import Generator
 from braillert.colors import (
     DISCORD_COLORS,
     COLORAMA_COLORS,
@@ -17,6 +19,7 @@ from braillert.colors import (
 )
 from braillert.logger import logger
 from braillert.__init__ import __version__, __author__, __author_email__
+from braillert.exceptions import GifUnsupportedResizeError, GifUnsupportedSaveError
 
 class Palette(NamedTuple):
     """Palette type object"""
@@ -74,6 +77,23 @@ DISABLE_LOGGING_ARG_HELP_STRING: str = (
     """
 )
 
+GIF_ARG_HELP_STRING: str = (
+    """
+    An optional argument that specifies if the image is a gif animation
+    e.g.
+    -gf or --gif
+    """
+)
+
+
+REPEAT_ARG_HELP_STRING: str = (
+    """
+    An optional argument that specifies if the gif animation should be repeated
+    e.g.
+    -r or --repeat
+    """
+)
+
 LOGO_PATH = os.path.join(os.path.dirname(__file__), "./logo.ansi")
 TEXT_LOGO: str
 with open(LOGO_PATH, "r", encoding="utf-8") as logo_file:
@@ -91,11 +111,23 @@ palettes: dict = {
 
 sys.stdout.reconfigure(encoding="utf-8")
 
+def _resize_portrait(image: Image, width: int):
+    wpercent = width / float(image.size[0])
+    hsize = int((float(image.size[1]) * float(wpercent)))
+    image = image.resize((width, hsize), Image.Resampling.LANCZOS)
+    return image
+
 def _exception_handler(func: Callable):
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
             func(*args, **kwargs)
+        except GifUnsupportedResizeError:
+            logger.error("Error! Gif resizing is not supported.")
+        except GifUnsupportedSaveError:
+            logger.error("Error! Gif arts saving is not supported.")
+        except KeyboardInterrupt:
+            pass
         except Exception as error: #pylint: disable = broad-except
             logger.error("Error! Unexpected exception caught:")
             logger.info(str(error))
@@ -110,13 +142,16 @@ def main() -> None:
                                         required=True, help=FP_ARG_HELP_STRING)
     argument_parser.add_argument("-m", "--mode", dest="mode", choices=palettes.keys(),
                                         default="rich", help=MODE_ARG_HELP_STRING)
-    argument_parser.add_argument("-w", "--width", dest="width", type=int,
-                                        default=100, help=MODE_ARG_HELP_STRING)
+    argument_parser.add_argument("-w", "--width", dest="width", type=int, help=MODE_ARG_HELP_STRING)
     argument_parser.add_argument("-o", "--out", dest="out", default=None, help=OUT_ARG_HELP_STRING)
     argument_parser.add_argument("-t", "--threshold", dest="threshold", default=None, type=int,
                                                                     help=THRESHOLD_ARG_HELP_STRING)
     argument_parser.add_argument("-dl", "--disable-logging", action="store_true",
                                                             help=DISABLE_LOGGING_ARG_HELP_STRING)
+    argument_parser.add_argument("-gf", "--gif", action="store_true", dest="gif",
+                                                        help=GIF_ARG_HELP_STRING)
+    argument_parser.add_argument("-r", "--repeat", action="store_true",
+                                                        help=REPEAT_ARG_HELP_STRING)
 
     arguments = argument_parser.parse_args()
     mode = palettes.get(arguments.mode)
@@ -129,12 +164,34 @@ def main() -> None:
         print(LOGO_DELIMITER)
 
     logger.info("Generating...")
-    art = generate_art(arguments.file_path, mode.palette, mode.resetter,
-                            art_width=arguments.width, threshold=arguments.threshold)
+    image = Image.open(arguments.file_path)
+    if not arguments.gif:
+        image = _resize_portrait(image, arguments.width)
+
+    generator = Generator(image,
+            mode.palette, mode.resetter, threshold=arguments.threshold)
+
+    if arguments.gif:
+        if arguments.width:
+            raise GifUnsupportedResizeError
+        if arguments.out:
+            raise GifUnsupportedSaveError
+        animation = generator.generate_gif_frames()
+    else:
+        art = generator.generate_art()
+
     logger.success("Generated!")
     if arguments.out:
         with open(arguments.out, "w", encoding="utf-8") as out_file:
             out_file.write(art)
         logger.info("Saved to -> %s", arguments.out)
     else:
-        mode.printer(art)
+        if arguments.gif:
+            while True:
+                for frame in animation.frames:
+                    mode.printer(frame)
+                    sleep(animation.frame_delay)
+                if not arguments.repeat:
+                    break
+        else:
+            mode.printer(art)
