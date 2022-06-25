@@ -9,7 +9,7 @@ requirements = [
 
 setup(
     name="braillert",
-    version="1.1.3",
+    version="2.0.0",
     packages=find_packages("src"),
     package_dir={'': "src"},
     include_package_data=True,
