@@ -111,7 +111,9 @@ palettes: dict = {
 
 sys.stdout.reconfigure(encoding="utf-8")
 
-def _resize_portrait(image: Image, width: int):
+def _resize_portrait(image: Image, width: int = None):
+    if not width:
+        width = 100
     wpercent = width / float(image.size[0])
     hsize = int((float(image.size[1]) * float(wpercent)))
     image = image.resize((width, hsize), Image.Resampling.LANCZOS)
