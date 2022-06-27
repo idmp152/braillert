@@ -72,4 +72,5 @@ during the art generation e.g.
 --threshold=130
 ```
 ## Documentation
-    WIP
+Still WIP but a small documentation on each file is available using pydoc.
+(every public class and function also has annotations and docstrings)
