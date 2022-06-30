@@ -30,7 +30,7 @@
 
 ## Demo
   
-![Demo](https://media.discordapp.net/attachments/955362477137362954/989629016870912030/braillert.gif?width=843&height=655)
+![Demo](https://media.discordapp.net/attachments/955362477137362954/992127994120392744/braillert.gif?width=729&height=655)
   
 ## Description
   
