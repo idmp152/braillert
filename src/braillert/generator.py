@@ -1,6 +1,8 @@
 from typing import NamedTuple
 
-from PIL import Image, ImageStat, ImageSequence
+from PIL import Image, ImageSequence, ImageStat
+
+from braillert.colors import AvailableColors, ANSI_RESETTER, closest_ansi_string
 
 PIXEL_MAP = ((0x01, 0x08), (0x02, 0x10), (0x04, 0x20), (0x40, 0x80))
 
@@ -10,10 +12,6 @@ RGB_LEN = 3
 
 BRAILLE_UNICODE_START = 0x2800
 FULL_BRAILLE_SYMBOL = '\u28ff'
-
-def _get_nearest_color(red: float, green: float, blue: float, pallete: dict) -> str:
-    return pallete[min(pallete.keys(), key=lambda color: sum((abs(
-                red - color[0]), abs(green - color[1]), abs(blue - color[2])))/3)]
 
 
 def _floor_to_nearest_multiple(number: int, multiple: int) -> int:
@@ -28,13 +26,12 @@ class Generator:
     """Braille art generator class"""
     def __init__(self,
         image: Image,
-        palette: dict = None,
-        resetter: str = '',
+        palette: AvailableColors = AvailableColors.GRAYSCALE,
         threshold: int = None
     ) -> None:
         self._image = image
         self._palette = palette
-        self._resetter = resetter
+        self._resetter = '' if palette == AvailableColors.GRAYSCALE else ANSI_RESETTER
         self._threshold = threshold
 
     def _generate_segment(
@@ -42,7 +39,7 @@ class Generator:
         current_width: int,
         current_height: int
     ) -> str:
-        grayscale = self._palette is None
+        grayscale = self._palette == AvailableColors.GRAYSCALE
         symbol_relative_pos = 0
         segment_pixels = []
         image = self._image.convert("RGBA")
@@ -63,9 +60,9 @@ class Generator:
             segment = FULL_BRAILLE_SYMBOL if (symbol_relative_pos == 0
                                     and not segment_opaque) else segment
 
-        color = _get_nearest_color(*[sum(x)/len(x) for x in zip(*segment_pixels)][0:RGB_LEN],
-                                                        self._palette) if not grayscale else ''
-        return color + segment + self._resetter
+        color = closest_ansi_string(*[sum(x)/len(x) for x in zip(*segment_pixels)][0:RGB_LEN],
+                                                            self._palette) if not grayscale else ''
+        return color + segment
 
     def generate_art(self) -> str:
         """Generates braille art from a picture."""
@@ -94,7 +91,7 @@ class Generator:
                 count += 1
             art_string += "\n"
 
-        return art_string
+        return art_string + self._resetter
 
     def generate_gif_frames(
         self

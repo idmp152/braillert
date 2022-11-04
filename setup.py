@@ -1,15 +1,13 @@
 from setuptools import setup, find_packages
 
 requirements = [
-    "rich ~= 12.4.4",
-    "pillow ~= 9.1.1",
-    "colorama ~= 0.4.4"
+    "pillow ~= 9.1.1"
 ]
 
 
 setup(
     name="braillert",
-    version="2.0.1",
+    version="2.1.1",
     packages=find_packages("src"),
     package_dir={'': "src"},
     include_package_data=True,

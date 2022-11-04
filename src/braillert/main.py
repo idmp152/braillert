@@ -1,31 +1,20 @@
-import logging
-import sys
-import os
 import argparse
-from time import sleep
-from typing import Callable, NamedTuple
+import logging
+import os
+import sys
 from functools import wraps
+from time import sleep
+from typing import Callable
 
-from rich.console import Console
 from PIL import Image
 
+from braillert.__init__ import __author__, __author_email__, __version__
+from braillert.colors import AvailableColors
+from braillert.exceptions import (GifUnsupportedResizeError,
+                                  GifUnsupportedSaveError)
 from braillert.generator import Generator
-from braillert.colors import (
-    DISCORD_COLORS,
-    COLORAMA_COLORS,
-    COLORAMA_RESETTER,
-    RICH_COLORS,
-    RICH_RESETTER
-)
 from braillert.logger import logger
-from braillert.__init__ import __version__, __author__, __author_email__
-from braillert.exceptions import GifUnsupportedResizeError, GifUnsupportedSaveError
 
-class Palette(NamedTuple):
-    """Palette type object"""
-    printer: Callable = print
-    palette: dict = None
-    resetter: str = ''
 
 FP_ARG_HELP_STRING: str = (
     """
@@ -102,13 +91,6 @@ with open(LOGO_PATH, "r", encoding="utf-8") as logo_file:
 LOGO_DELIMITER_LENGTH = TEXT_LOGO.partition('\n')[0].count('⣿') # Not universal, must be replaced
 LOGO_DELIMITER = '-' * LOGO_DELIMITER_LENGTH
 
-palettes: dict = {
-    "rich": Palette(printer=Console().print, palette=RICH_COLORS, resetter=RICH_RESETTER),
-    "colorama": Palette(palette=COLORAMA_COLORS, resetter=COLORAMA_RESETTER),
-    "discord": Palette(palette=DISCORD_COLORS),
-    "gs": Palette()
-}
-
 sys.stdout.reconfigure(encoding="utf-8")
 
 def _resize_portrait(image: Image, width: int = None):
@@ -136,14 +118,14 @@ def _exception_handler(func: Callable):
 
     return wrapper
 
-@_exception_handler
+#@_exception_handler
 def main() -> None:
     """Main function."""
     argument_parser = argparse.ArgumentParser()
     argument_parser.add_argument("-fp", "--file-path", dest="file_path",
                                         required=True, help=FP_ARG_HELP_STRING)
-    argument_parser.add_argument("-m", "--mode", dest="mode", choices=palettes.keys(),
-                                        default="rich", help=MODE_ARG_HELP_STRING)
+    argument_parser.add_argument("-m", "--mode", dest="mode", choices=[i.value
+                        for i in AvailableColors], default="2", type=str, help=MODE_ARG_HELP_STRING)
     argument_parser.add_argument("-w", "--width", dest="width", type=int, help=MODE_ARG_HELP_STRING)
     argument_parser.add_argument("-o", "--out", dest="out", default=None, help=OUT_ARG_HELP_STRING)
     argument_parser.add_argument("-t", "--threshold", dest="threshold", default=None, type=int,
@@ -156,12 +138,11 @@ def main() -> None:
                                                         help=REPEAT_ARG_HELP_STRING)
 
     arguments = argument_parser.parse_args()
-    mode = palettes.get(arguments.mode)
 
     if arguments.disable_logging:
         logger.setLevel(logging.ERROR)
     else:
-        Console().print(TEXT_LOGO)
+        print(TEXT_LOGO)
         print(f"Author: {__author__} <{__author_email__}>  Version: {__version__}")
         print(LOGO_DELIMITER)
 
@@ -171,7 +152,7 @@ def main() -> None:
         image = _resize_portrait(image, arguments.width)
 
     generator = Generator(image,
-            mode.palette, mode.resetter, threshold=arguments.threshold)
+            arguments.mode, threshold=arguments.threshold)
 
     if arguments.gif:
         if arguments.width:
@@ -191,9 +172,9 @@ def main() -> None:
         if arguments.gif:
             while True:
                 for frame in animation.frames:
-                    mode.printer(frame)
+                    print(frame)
                     sleep(animation.frame_delay)
                 if not arguments.repeat:
                     break
         else:
-            mode.printer(art)
+            print(art)
