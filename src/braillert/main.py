@@ -88,7 +88,8 @@ TEXT_LOGO: str
 with open(LOGO_PATH, "r", encoding="utf-8") as logo_file:
     TEXT_LOGO = logo_file.read()
 
-LOGO_DELIMITER_LENGTH = TEXT_LOGO.partition('\n')[0].count('⣿') # Not universal, must be replaced
+LOGO_DELIMITER_LENGTH = sum(1 for i in TEXT_LOGO.partition('\n')[0]
+                                if ord(i) in range(0x2800, 0x28ff + 1))
 LOGO_DELIMITER = '-' * LOGO_DELIMITER_LENGTH
 
 sys.stdout.reconfigure(encoding="utf-8")
