@@ -46,26 +46,37 @@ pip install braillert
 ```cmd
 braillert [-h] -fp FILE_PATH [-m {rich,colorama,discord,gs}] [-w WIDTH] [-o OUT] [-c CONTRAST] [-t THRESHOLD]
 ```
+##
 `--file-path` or `-fp` - a required argument that represents the path where the convertible image is located e.g.
 ```
 -fp=art.png
 ```
+##
 `--mode` or `-m` - a required argument that represents the mode in which the provided image should be converted e.g.
 ```
---mode=rich
+--mode=2
 ```
 or
 ```
--m=colorama
+-m=8_lo
 ```
+Available modes:
+- 2 (grayscale)
+- 8_lo (lower 8 colors)
+- 8_hi (higher 8 colors)
+- 16 (16 colors palette)
+- 256 (full colors palette)
+##
 `--width` or `-w` - an optional argument that represents the width in which the provided image should be resized e.g.
 ```
 --width=150
 ```
+##
 `--out` or `-o` - an optional argument that represents the path in which the art should be saved e.g
 ```
 --out=./art.ansi
 ```
+##
 `--threshold` or `-t` - an optional argument that represents the threshold value that will be used
 during the art generation e.g.
 ```
