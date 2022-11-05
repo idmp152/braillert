@@ -17,6 +17,9 @@ FULL_BRAILLE_SYMBOL = '\u28ff'
 def _floor_to_nearest_multiple(number: int, multiple: int) -> int:
     return (number // multiple) * multiple
 
+def _get_grayscale(red: int, green: int, blue: int) -> float:
+    return red * 299/1000 + green * 587/1000 + blue * 114/1000
+
 class Animation(NamedTuple):
     """Animation class"""
     frames: tuple
@@ -29,7 +32,7 @@ class Generator:
         palette: AvailableColors = AvailableColors.GRAYSCALE,
         threshold: int = None
     ) -> None:
-        self._image = image
+        self._image = image.convert("RGBA")
         self._palette = palette
         self._resetter = '' if palette == AvailableColors.GRAYSCALE else ANSI_RESETTER
         self._threshold = threshold
@@ -42,14 +45,11 @@ class Generator:
         grayscale = self._palette == AvailableColors.GRAYSCALE
         symbol_relative_pos = 0
         segment_pixels = []
-        image = self._image.convert("RGBA")
-        image_grayscale = self._image.convert("L")
         for part_height in range(BRAILLE_DOTS_HEIGHT):
             for part_width in range(BRAILLE_DOTS_WIDTH):
-                pixel_grayscale = image_grayscale.getpixel((current_width + part_width,
-                                                                current_height + part_height))
-                pixel = image.getpixel(
+                pixel = self._image.getpixel(
                     (current_width + part_width, current_height + part_height))
+                pixel_grayscale = _get_grayscale(*pixel[0:3])
                 segment_pixels.append(pixel)
                 if pixel_grayscale > self._threshold:
                     symbol_relative_pos += PIXEL_MAP[part_height][part_width]
