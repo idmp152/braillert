@@ -44,7 +44,7 @@ pip install braillert
 
 ## Usage
 ```cmd
-braillert [-h] -fp FILE_PATH [-m {rich,colorama,discord,gs}] [-w WIDTH] [-o OUT] [-c CONTRAST] [-t THRESHOLD]
+braillert [-h] -fp FILE_PATH [-m {2,8_lo,8_hi,16,256}] [-w WIDTH] [-o OUT] [-t THRESHOLD] [-dl] [-gf] [-r]
 ```
 ##
 `--file-path` or `-fp` - a required argument that represents the path where the convertible image is located e.g.
