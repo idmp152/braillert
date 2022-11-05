@@ -35,6 +35,7 @@ class AvailableColors(str, Enum):
     HIGH_8_COLORS = "8_hi"
     FULL_16_COLORS = "16"
     FULL_SPECTRE = "256"
+    GRAYSCALE_EXTENDED = "gs_ext"
 
 def _closest_ansi(red: int, green: int, blue: int, ansi_dict: dict) -> str:
     """
@@ -48,7 +49,8 @@ ansi_dicts: dict = {
     AvailableColors.LOW_8_COLORS: LOW_8_COLORS_DICT,
     AvailableColors.HIGH_8_COLORS: HIGH_8_COLORS_DICT,
     AvailableColors.FULL_16_COLORS: ANSI_BASIC_16_DICT,
-    AvailableColors.FULL_SPECTRE: ANSI_256_DICT
+    AvailableColors.FULL_SPECTRE: ANSI_256_DICT,
+    AvailableColors.GRAYSCALE_EXTENDED: ANSI_24_GRAYSCALE_DICT
 }
 
 def closest_ansi_string(red: int, green: int, blue: int, colors: AvailableColors) -> str:

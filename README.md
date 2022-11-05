@@ -44,7 +44,7 @@ pip install braillert
 
 ## Usage
 ```cmd
-braillert [-h] -fp FILE_PATH [-m {2,8_lo,8_hi,16,256}] [-w WIDTH] [-o OUT] [-t THRESHOLD] [-dl] [-gf] [-r]
+braillert [-h] -fp FILE_PATH [-m {2,8_lo,8_hi,16,256,gs_ext}] [-w WIDTH] [-o OUT] [-t THRESHOLD] [-dl] [-gf] [-r]
 ```
 ##
 `--file-path` or `-fp` - a required argument that represents the path where the convertible image is located e.g.
@@ -66,6 +66,7 @@ Available modes:
 - 8_hi (higher 8 colors)
 - 16 (16 colors palette)
 - 256 (full colors palette)
+- gs_ext (24 color grayscale extended palette)
 ##
 `--width` or `-w` - an optional argument that represents the width in which the provided image should be resized e.g.
 ```
