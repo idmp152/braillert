@@ -34,7 +34,7 @@
   
 ## Description
   
-Braillert is a text art generator using braille symbols. It supports multiple color palettes including Rich, Colorama and ANSI(Discord). Can be used either as a CLI program or a library.
+Braillert is a text art generator using braille symbols. It supports multiple color palettes including 2-color grayscale, extended grayscale, high and low 8-color palette, 16 and 256 color palettes. Can be used either as a CLI program or a library.
 
 ## Installation
 
