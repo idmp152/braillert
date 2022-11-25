@@ -115,11 +115,11 @@ def _exception_handler(func: Callable):
             pass
         except Exception as error: #pylint: disable = broad-except
             logger.error("Error! Unexpected exception caught:")
-            logger.info(str(error))
+            logger.error(str(error))
 
     return wrapper
 
-#@_exception_handler
+@_exception_handler
 def main() -> None:
     """Main function."""
     argument_parser = argparse.ArgumentParser()
