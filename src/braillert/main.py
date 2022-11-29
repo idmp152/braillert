@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import sys
+import traceback
 from functools import wraps
 from time import sleep
 from typing import Callable
@@ -116,6 +117,7 @@ def _exception_handler(func: Callable):
         except Exception as error: #pylint: disable = broad-except
             logger.error("Error! Unexpected exception caught:")
             logger.error(str(error))
+            logger.debug(traceback.format_exc())
 
     return wrapper
 
