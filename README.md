@@ -1,4 +1,4 @@
-![Logo](https://media.discordapp.net/attachments/955362477137362954/989621188630282290/unknown.png?width=1440&height=255)
+![Logo](https://user-images.githubusercontent.com/38213271/219941713-9e801c99-4262-42f1-8fe9-f3c33c66a76b.png)
 
 <div align="center">
   
