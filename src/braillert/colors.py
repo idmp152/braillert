@@ -11,8 +11,10 @@ LOW_8_COLORS: tuple = ((0, 0, 0), (128, 0, 0), (0, 128, 0), (128, 128, 0),
 
 HIGH_8_COLORS: tuple = ((128, 128, 128), (255, 0, 0), (0, 255, 0), (255, 255, 0),
                         (0, 0, 255), (255, 0, 255), (0, 255, 255), (255, 255, 255))
-LOW_8_COLORS_DICT: dict = {str(i): LOW_8_COLORS[i] for i in range(8)}
-HIGH_8_COLORS_DICT: dict = {str(i + 8): HIGH_8_COLORS[i] for i in range(8)}
+LOW_8_COLORS_PREFIX = 30
+LOW_8_COLORS_DICT: dict = {str(LOW_8_COLORS_PREFIX + i): LOW_8_COLORS[i] for i in range(8)}
+HIGH_8_COLORS_PREFIX = 40
+HIGH_8_COLORS_DICT: dict = {str(HIGH_8_COLORS_PREFIX + i): HIGH_8_COLORS[i] for i in range(8)}
 
 EXTENDED_GRAYSCALE_COLORS: tuple = tuple((int(i*(256 / 24)),)*3 for i in range(1,24+1))
 
