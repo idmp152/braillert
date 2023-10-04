@@ -113,8 +113,10 @@ def _exception_handler(func: Callable):
         except GifUnsupportedSaveError:
             logger.error("Error! Gif arts saving is not supported.")
         except KeyboardInterrupt:
-            pass
-        except Exception as error: #pylint: disable = broad-except
+            print()
+            logger.info("Generator interrupted. Exiting...")
+            sys.exit(0)
+        except Exception as error:
             logger.error("Error! Unexpected exception caught:")
             logger.error(str(error))
             logger.debug(traceback.format_exc())
