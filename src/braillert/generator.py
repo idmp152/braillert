@@ -20,10 +20,10 @@ def _floor_to_nearest_multiple(number: int, multiple: int) -> int:
 def _get_grayscale(red: int, green: int, blue: int) -> float:
     return red * 299/1000 + green * 587/1000 + blue * 114/1000
 
-class Animation(NamedTuple):
+class Frame(NamedTuple):
     """Animation class"""
-    frames: tuple
-    frame_delay: float
+    content: str
+    frame_delay_ms: int
 
 class Generator:
     """Braille art generator class"""
@@ -32,7 +32,7 @@ class Generator:
         palette: AvailableColors = AvailableColors.GRAYSCALE,
         threshold: int = None
     ) -> None:
-        self._image = image.convert("RGBA")
+        self._image = image
         self._palette = palette
         self._resetter = '' if palette == AvailableColors.GRAYSCALE else ANSI_RESETTER
         self._threshold = threshold
@@ -66,6 +66,7 @@ class Generator:
 
     def generate_art(self) -> str:
         """Generates braille art from a picture."""
+        self._image = self._image.convert("RGBA")
         symbols = []
 
         if self._threshold is None:
@@ -86,24 +87,19 @@ class Generator:
         art_string = ""
         count = 0
         for _ in range(self._image.height // BRAILLE_DOTS_HEIGHT):
+            art_string += "\n"
             for _ in range(self._image.width // BRAILLE_DOTS_WIDTH):
                 art_string += symbols[count]
                 count += 1
-            art_string += "\n"
 
         return art_string + self._resetter
 
     def generate_gif_frames(
         self
-    ) -> Animation:
+    ) -> tuple[Frame]:
         """Generates frames from a gif image using generate_art"""
         frames = []
-        total_duration: int = 0
-        frames_len: int = 0
         for frame in ImageSequence.Iterator(self._image):
             self._image = frame
-            frames.append(self.generate_art())
-            total_duration += frame.info['duration']
-            frames_len += 1
-        average_fps = total_duration / frames_len
-        return Animation(frames=tuple(frames), frame_delay = 1 / average_fps)
+            frames.append(Frame(self.generate_art(), frame.info['duration']))
+        return tuple(frames)

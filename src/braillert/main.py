@@ -3,8 +3,8 @@ import logging
 import os
 import sys
 import traceback
-from functools import wraps
 from time import sleep
+from functools import wraps
 from typing import Callable
 
 from PIL import Image
@@ -13,7 +13,7 @@ from braillert.__init__ import __author__, __author_email__, __version__
 from braillert.colors import AvailableColors
 from braillert.exceptions import (GifUnsupportedResizeError,
                                   GifUnsupportedSaveError)
-from braillert.generator import Generator
+from braillert.generator import Generator, Frame
 from braillert.logger import logger
 
 
@@ -103,6 +103,16 @@ def _resize_portrait(image: Image, width: int = None):
     image = image.resize((width, hsize), Image.Resampling.LANCZOS)
     return image
 
+def _display_gif(animation: tuple[Frame], repeat: bool):
+    while True:
+        for frame in animation:
+            print("\033c\033[3J", end='')
+            print(frame.content, end='')
+            sleep(frame.frame_delay_ms/1000)
+
+        if not repeat:
+            break
+
 def _exception_handler(func: Callable):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -164,7 +174,7 @@ def main() -> None:
             raise GifUnsupportedResizeError
         if arguments.out:
             raise GifUnsupportedSaveError
-        animation = generator.generate_gif_frames()
+        frames = generator.generate_gif_frames()
     else:
         art = generator.generate_art()
 
@@ -175,11 +185,6 @@ def main() -> None:
         logger.info("Saved to -> %s", arguments.out)
     else:
         if arguments.gif:
-            while True:
-                for frame in animation.frames:
-                    print(frame)
-                    sleep(animation.frame_delay)
-                if not arguments.repeat:
-                    break
+            _display_gif(frames, arguments.repeat)
         else:
             print(art)
