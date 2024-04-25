@@ -8,9 +8,9 @@
     Generate braille arts using various palette types.
   </h4>
   
-  ![Maintenance](https://img.shields.io/maintenance/yes/2023)
+  ![Maintenance](https://img.shields.io/maintenance/yes/2024)
   ![PyPi](https://img.shields.io/pypi/v/braillert)
-  ![CodeFactor](https://www.codefactor.io/repository/github/ov3rwrite/braillert/badge)
+[![CodeFactor](https://www.codefactor.io/repository/github/idmp152/braillert/badge)](https://www.codefactor.io/repository/github/idmp152/braillert)
   
   [![GitHub stars](https://badgen.net/github/stars/ov3rwrite/braillert)](https://GitHub.com/ov3rwrite/braillert/stargazers/)
   [![GitHub issues](https://badgen.net/github/issues/ov3rwrite/braillert)](https://GitHub.com/ov3rwrite/braillert/issues/)
